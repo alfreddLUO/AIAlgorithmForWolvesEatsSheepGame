@@ -1,19 +1,18 @@
 
 
 
-####  PYTHON   #### 
-# how to run this game? In any python>=3.6 environment
+#  PYTHON   
+## how to run this game? In any python>=3.6 environment
 ```shell
 pip install pygame
 python WES_Main.py
 ```
 
---------------------------------------------------------------------------
-We highly recommend building the AI algorithm using Python. 
-Here are one strategy on how to call AI algorithms with C++ or Java in Python. Note that there are other solutions available to call C++ or Java in Python.
---------------------------------------------------------------------------
 
-####  C++   #### 
+* We highly recommend building the AI algorithm using Python. 
+* Here are one strategy on how to call AI algorithms with C++ or Java in Python. Note that there are other solutions available to call C++ or Java in Python.
+
+#  C++   
 If you don't have a g++ environment on Windows, you can use a cross-compiler like MinGW-w64 to compile your code and create the shared library. Here are the steps to do this:
 
 * Download and install MinGW-w64: You can download it from the official website https://sourceforge.net/projects/mingw-w64/. Choose the appropriate version (32-bit or 64-bit) based on your system architecture and install it.
@@ -29,7 +28,7 @@ to set the PATH environment variable to include the bin directory of the MinGW-w
 * Compile the code: Open a command prompt and navigate to the directory containing your aiAlgorithm.cpp file. Then, use the following command to compile the code and create the shared library:
 g++ --shared -o aiAlgorithm.so aiAlgorithm.cpp
 
-####  JAVA   ####
+#  JAVA  
 
 Note that you need to have the 'AIAlgorithm' class defined in a Java file and compiled into a '.class' file before you can use it in Python with JPype. Also, you need to make sure that the class and method names are spelled correctly.
 
