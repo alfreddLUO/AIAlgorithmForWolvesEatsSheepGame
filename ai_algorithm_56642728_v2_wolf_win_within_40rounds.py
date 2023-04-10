@@ -93,14 +93,14 @@ class Board:
 
         return total_distance + calculate_trapped_scores(num_of_trapped_ways)
 
-    def evaluate(self, player, gameEnds, depth):
+    def evaluate(self, player, gameEnds):
         if gameEnds:
             if self.winner == player:
                 return 1000
             else:
                 return -1000
         if player == 2:
-            return ((10 - self.check_num_of_sheep()) * 100 - self.check_total_distance_from_sheep_to_wolf())*(1-depth/100)
+            return (10 - self.check_num_of_sheep()) * 100 - self.check_total_distance_from_sheep_to_wolf()
         elif player == 1:
             total_distance = self.check_total_distance_from_sheep_to_wolf()
             num_of_trapped_ways = self.check_num_of_ways_wolf_trapped()
@@ -146,11 +146,10 @@ class Board:
                             wolf2_trapped = True
         if sheep_cnt <= 2:
             self.update_winner(2)
-            # print("Sheep <=2")
             return True
-        if wolf1_exist and wolf2_exist and wolf1_trapped and wolf2_trapped:
+        if (wolf1_exist and wolf1_trapped and not wolf2_exist) or (
+                wolf1_exist and wolf2_exist and wolf1_trapped and wolf2_trapped):
             self.update_winner(1)
-            print("Wolf Trapped")
             return True
         return False
 
@@ -219,7 +218,7 @@ def getBestMove(board, maxDepth, player):
     def ab_negamax(board, player, maxDepth, currentDepth, alpha, beta):
         gameEnds = board.game_ends()
         if gameEnds or currentDepth == maxDepth:
-            return None, None, None, None, board.evaluate(player, gameEnds, currentDepth), currentDepth
+            return None, None, None, None, board.evaluate(player, gameEnds), currentDepth
         best_start_row, best_start_col, best_end_row, best_end_col = None, None, None, None
         bestScore = -math.inf
         bestScoreDepth = math.inf
@@ -249,7 +248,6 @@ def getBestMove(board, maxDepth, player):
 
     best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth = ab_negamax(board, player, maxDepth, 0,
                                                                                        -math.inf, math.inf)
-    print("Best Move: ", best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth)
     return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
 
 
@@ -260,7 +258,7 @@ def AIAlgorithm(filename, movemade):  # a showcase for random walk
     matrix = load_matrix(filename)
     if movemade == True:
         board = Board(2, matrix)
-        [start_row, start_col, end_row, end_col, scores,depth] = getBestMove(board, 10, 2)
+        [start_row, start_col, end_row, end_col, scores,depth] = getBestMove(board, 5, 2)
         print("Wolf Scores: ", scores, "Depth: ", depth)
         matrix2 = copy.deepcopy(matrix)
         matrix2[end_row, end_col] = 2

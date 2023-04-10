@@ -5,7 +5,7 @@
 ## how to run this game? In any python>=3.6 environment
 ```shell
 pip install pygame
-python WES_Main.py
+python WES_Main_prev.py
 ```
 
 
