@@ -3,7 +3,7 @@ import time
 import pygame as p
 import WES_Engine
 import ai_algorithm_showcase as ai
-import ai_algorithm_56642728 as ai2
+import ai_algorithm_56642728 as ai4
 import ctypes
 import jpype
 import os
@@ -163,7 +163,7 @@ class WES(object):
     def ai2_algorithm(self, gs, count, moveMade): # or replace the gs with filename
         record_file = self.current_round + 'state_' + str(count-1) +'.txt'
         if self.LANGUAGE == "PYTHON":
-            start_row, start_col, end_row, end_col = ai2.AIAlgorithm(record_file, moveMade)
+            start_row, start_col, end_row, end_col = ai4.AIAlgorithm(record_file, moveMade)
         elif self.LANGUAGE == "C++":
             # Compile a .cpp to .so: g++ --shared -o aiAlgorithm.so aiAlgorithm.cpp
             # Load the shared library
@@ -219,7 +219,7 @@ class WES(object):
         return gs, moveMade
 
     def ai2_move(self, gs, count, moveMade):
-        start_row, start_col, end_row, end_col = self.ai_algorithm(gs, count, moveMade)
+        start_row, start_col, end_row, end_col = self.ai2_algorithm(gs, count, moveMade)
         start = (int(start_row), int(start_col))
         end = (int(end_row), int(end_col))
 
@@ -324,31 +324,31 @@ class WES(object):
                             return True
                     else:
                         raise ValueError('The setting of playing is wrong')
-            '''
-            self.drawGameState(screen, gs)
-            clock.tick(self.MAX_FPS)
-            winner = gs.checkWinning()
-            if winner != 0:
-                if winner == 1:
-                    surface_1 = my_font.render('Wolves Win!', False, (220, 0, 0))
-                    surface_2 = my_font.render('Input mode for A New Game', False, (220, 0, 0))
-                    screen.blit(surface_1, (1.7 * self.SQ_SIZE, 2 * self.SQ_SIZE))
-                    screen.blit(surface_2, (0.2 * self.SQ_SIZE, 2.4 * self.SQ_SIZE))
-                    p.display.flip()
-                    time.sleep(5)
-                    p.quit()
-                    return True
-                if winner == 2:
-                    surface_1 = my_font.render('Sheep Win!', False, (220, 0, 0))
-                    surface_2 = my_font.render('Input mode for A New Game', False, (220, 0, 0))
-                    screen.blit(surface_1, (1.7 * self.SQ_SIZE, 2 * self.SQ_SIZE))
-                    screen.blit(surface_2, (0.2 * self.SQ_SIZE, 2.4 * self.SQ_SIZE))
-                    p.display.flip()
-                    time.sleep(5)
-                    p.quit()
-                    return True
-            '''
-            p.display.flip()
+
+            # self.drawGameState(screen, gs)
+            # clock.tick(self.MAX_FPS)
+            # winner = gs.checkWinning()
+            # if winner != 0:
+            #     if winner == 1:
+            #         surface_1 = my_font.render('Wolves Win!', False, (220, 0, 0))
+            #         surface_2 = my_font.render('Input mode for A New Game', False, (220, 0, 0))
+            #         screen.blit(surface_1, (1.7 * self.SQ_SIZE, 2 * self.SQ_SIZE))
+            #         screen.blit(surface_2, (0.2 * self.SQ_SIZE, 2.4 * self.SQ_SIZE))
+            #         p.display.flip()
+            #         time.sleep(5)
+            #         p.quit()
+            #         return True
+            #     if winner == 2:
+            #         surface_1 = my_font.render('Sheep Win!', False, (220, 0, 0))
+            #         surface_2 = my_font.render('Input mode for A New Game', False, (220, 0, 0))
+            #         screen.blit(surface_1, (1.7 * self.SQ_SIZE, 2 * self.SQ_SIZE))
+            #         screen.blit(surface_2, (0.2 * self.SQ_SIZE, 2.4 * self.SQ_SIZE))
+            #         p.display.flip()
+            #         time.sleep(5)
+            #         p.quit()
+            #         return True
+
+            # p.display.flip()
 
     '''
     Winner Judgement

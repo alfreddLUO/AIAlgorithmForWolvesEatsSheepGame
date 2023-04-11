@@ -66,8 +66,8 @@ class Board:
         for i in range(5):
             for j in range(5):
                 if board[i][j] == 1:
-                    dist_current_to_wolf1 = abs(i - wolf1_location[0]) + abs(j - wolf1_location[1])
-                    dist_current_to_wolf2 = abs(i - wolf2_location[0]) + abs(j - wolf2_location[1])
+                    dist_current_to_wolf1 = i - wolf1_location[0] + j - wolf1_location[1]
+                    dist_current_to_wolf2 = i - wolf2_location[0] + j - wolf2_location[1]
                     total_distance += (dist_current_to_wolf1 + dist_current_to_wolf2)
         return total_distance
 
@@ -90,14 +90,14 @@ class Board:
             for i in range(num + 1):
                 res += 4 * i ** 2
             return res
-        return total_distance*10 + calculate_trapped_scores(num_of_trapped_ways)
-
+        return total_distance + calculate_trapped_scores(num_of_trapped_ways)
     def calculate_wolf_scores(self,num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, depth):
         def calculate_trapped_scores(num):
             res = 0
             for i in range(num + 1):
                 res += 4 * i ** 2
             return res
+
         return (num_of_sheep_killed * 100 + shorten_distance_from_sheep_to_wolf - 0.5 * calculate_trapped_scores(num_of_trapped_ways))*(1-depth*0.5/100)
 
     def evaluate(self, player, gameEnds, depth):
@@ -116,6 +116,7 @@ class Board:
             total_distance = self.check_total_distance_from_sheep_to_wolf()
             num_of_trapped_ways = self.check_num_of_ways_wolf_trapped()
             total_scores = self.calculate_sheep_scores(total_distance, num_of_trapped_ways)
+            # print("Sheep Calculated Scores: ", total_scores)
             return total_scores
         return 0
 
