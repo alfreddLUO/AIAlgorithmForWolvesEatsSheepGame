@@ -129,7 +129,7 @@ class Board:
                 res += 4 * i ** 2
             return res
         # shorten_distance_from_sheep_to_wolf = shorten_distance_from_sheep_to_wolf if shorten_distance_from_sheep_to_wolf == 0 else 1
-        return num_of_sheep_killed * 500 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 300 * num_of_to_be_killed_sheep
+        return num_of_sheep_killed * 400 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 300 * num_of_to_be_killed_sheep
 
     def evaluate(self, player, gameEnds, org_board):
         if gameEnds:

@@ -129,7 +129,7 @@ class Board:
                 res += 4 * i ** 2
             return res
         # shorten_distance_from_sheep_to_wolf = shorten_distance_from_sheep_to_wolf if shorten_distance_from_sheep_to_wolf == 0 else 1
-        return num_of_sheep_killed * 500 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 300 * num_of_to_be_killed_sheep
+        return num_of_sheep_killed * 400 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 300 * num_of_to_be_killed_sheep
 
     def evaluate(self, player, gameEnds, org_board):
         if gameEnds:
@@ -277,23 +277,23 @@ def getBestMove(board, maxDepth, player):
             all_moves = board.getSheepMoves()
         for move in all_moves:
             newBoard = board.makeMove(move)
-            if player == 2:
-                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
-                                                                             currentDepth + 1, alpha,
-                                                                             beta, org_board)
-                currentScore = currentScore_
-                if board.currentPlayer() == 2:
-                    alpha = max(alpha, currentScore)
-                else:
-                    beta = min(beta,currentScore)
-            else:
-                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
+            # if player == 2:
+            #     _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
+            #                                                                  currentDepth + 1, alpha,
+            #                                                                  beta, org_board)
+            #     currentScore = currentScore_
+            #     if board.currentPlayer() == 2:
+            #         alpha = max(alpha, currentScore)
+            #     else:
+            #         beta = min(beta,currentScore)
+            # else:
+            _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
                                                                          currentDepth + 1, -beta,
                                                                          -max(alpha, bestScore), org_board)
-            # if board.currentPlayer() == player:
-            #     currentScore = abs(currentScore_)
-            # else:
-            #     currentScore = -abs(currentScore_)
+            if board.currentPlayer() == player:
+                currentScore = abs(currentScore_)
+            else:
+                currentScore = -abs(currentScore_)
 
             if currentScore > bestScore or (currentScore == bestScore and currentScoreDepth < bestScoreDepth): # or currentScore == 1000:
                 bestScore = currentScore
