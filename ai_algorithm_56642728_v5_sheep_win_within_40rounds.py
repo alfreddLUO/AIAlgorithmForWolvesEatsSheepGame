@@ -90,7 +90,7 @@ class Board:
             for i in range(num + 1):
                 res += 4 * i ** 2
             return res
-        return total_distance*10 + calculate_trapped_scores(num_of_trapped_ways)
+        return total_distance * 10 + calculate_trapped_scores(num_of_trapped_ways)
 
     def calculate_wolf_scores(self,num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, depth):
         def calculate_trapped_scores(num):

@@ -110,10 +110,6 @@ class Board:
                     num_of_to_be_killed_sheep += tmp_num
         return num_of_to_be_killed_sheep
 
-    @staticmethod
-    def calculate_shortened_distance_by_current_move(org_board, cur_board):
-        return org_board.check_total_distance_from_sheep_to_wolf()-cur_board.check_total_distance_from_sheep_to_wolf()
-
     def calculate_sheep_scores(self, num_of_sheep, total_distance, num_of_trapped_ways, trapped_wolf_num,num_of_to_be_killed_sheep):
         def calculate_trapped_scores(num):
             res = 0
@@ -122,15 +118,15 @@ class Board:
             return res
         return (num_of_sheep-2) * 100 + total_distance * 5 + calculate_trapped_scores(num_of_trapped_ways) + trapped_wolf_num * 400 - num_of_to_be_killed_sheep*500
 
-    def calculate_wolf_scores(self,num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep):
+    def calculate_wolf_scores(self,num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, depth):
         def calculate_trapped_scores(num):
             res = 0
             for i in range(num + 1):
                 res += 4 * i ** 2
             return res
-        return num_of_sheep_killed * 200 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 20 * num_of_to_be_killed_sheep
+        return (num_of_sheep_killed * 200 + shorten_distance_from_sheep_to_wolf*5 - 0 * calculate_trapped_scores(num_of_trapped_ways))
 
-    def evaluate(self, player, gameEnds, org_board):
+    def evaluate(self, player, gameEnds, depth):
         if gameEnds:
             if self.winner == player:
                 return 5000
@@ -140,9 +136,8 @@ class Board:
             num_of_sheep_killed = 10 - self.check_num_of_sheep()
             num_of_trapped_ways, trapped_wolf_num = self.check_num_of_ways_wolf_trapped()
             total_distance_from_sheep_to_wolf = self.check_total_distance_from_sheep_to_wolf()
-            shorten_distance_from_sheep_to_wolf = Board.calculate_shortened_distance_by_current_move(org_board, self) - total_distance_from_sheep_to_wolf
-            num_of_to_be_killed_sheep = self.check_num_of_to_be_killed_sheep()
-            return self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep)
+            shorten_distance_from_sheep_to_wolf = 200 - total_distance_from_sheep_to_wolf
+            return self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, depth)
         elif player == 1:
             num_of_sheep = self.check_num_of_sheep()
             num_of_trapped_ways, trapped_wolf_num = self.check_num_of_ways_wolf_trapped()
@@ -259,47 +254,39 @@ class Board:
 
 
 def getBestMove(board, maxDepth, player):
-    def ab_negamax(board, player, maxDepth, currentDepth, alpha, beta, org_board):
+    def ab_negamax(board, player, maxDepth, currentDepth, alpha, beta):
         gameEnds = board.game_ends()
         if gameEnds or currentDepth == maxDepth:
-            return None, None, None, None, board.evaluate(player, gameEnds, org_board), currentDepth, None
+            return None, None, None, None, board.evaluate(player, gameEnds, currentDepth), currentDepth
         best_start_row, best_start_col, best_end_row, best_end_col = None, None, None, None
         bestScore = -math.inf
         bestScoreDepth = math.inf
-        bestScoreBoard = None
         if board.player == 2:
             all_moves = board.getWolfMoves()
         else:
             all_moves = board.getSheepMoves()
         for move in all_moves:
             newBoard = board.makeMove(move)
-            _, _, _, _, currentScore_, currentScoreDepth,_ = ab_negamax(newBoard, player, maxDepth,
+            _, _, _, _, currentScore_, currentScoreDepth = ab_negamax(newBoard, player, maxDepth,
                                                                               currentDepth + 1, -beta,
-                                                                              -max(alpha, bestScore),org_board)
+                                                                              -max(alpha, bestScore))
             currentScore = currentScore_
             if currentScore > bestScore: # or currentScore == 1000:
                 bestScore = currentScore
                 bestScoreDepth = currentScoreDepth
                 best_start_row, best_start_col, best_end_row, best_end_col = move[0], move[1], move[2], move[3]
-                bestScoreBoard = newBoard
                 if bestScore > beta:
-                    return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard
+                    return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
             elif currentScore == bestScore and currentScoreDepth < bestScoreDepth:
                 best_start_row, best_start_col, best_end_row, best_end_col = move[0], move[1], move[2], move[3]
                 bestScoreDepth = currentScoreDepth
-                bestScoreBoard = newBoard
                 if bestScore > beta:
-                    return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard
+                    return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
 
-        return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard
+        return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
 
-    best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard = ab_negamax(board, player, maxDepth, 0,
-                                                                                       -math.inf, math.inf, board)
-    # shortened_distance = Board.calculate_shortened_distance_by_current_move(board, bestScoreBoard)
-    # if player == 2:
-    #     bestScore = bestScore + 30*shortened_distance
-    # else:
-    #     bestScore = bestScore - 30 * shortened_distance
+    best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth = ab_negamax(board, player, maxDepth, 0,
+                                                                                       -math.inf, math.inf)
     print("Best Move: ", best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth)
     return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
 
