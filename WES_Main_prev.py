@@ -2,11 +2,11 @@ import time
 
 import pygame as p
 import WES_Engine
-import ai_algorithm_showcase as ai
+from PastVersionsForAIAlgorithm import ai_algorithm_showcase as ai
 import ai_algorithm_56642728 as ai2
-import ctypes
 import jpype
-import os
+
+
 # os.environ['JAVA_HOME'] = r'C:/Program Files/Java/jdk-19'
 
 class WES(object):
