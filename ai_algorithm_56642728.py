@@ -34,31 +34,24 @@ class Board:
         self.player = player
         self.wolf1_location = None
         self.wolf2_location = None
-
     def update_winner(self, winner):
         self.winner = winner
-
     def makeMove(self, move):
+        '''
+        This method would take the move as input, change the game state, update the next player and return a new board object.
+        '''
         [start_row, start_col, end_row, end_col] = move
         matrix2 = copy.deepcopy(self.state)
         matrix2[end_row, end_col] = self.player
         matrix2[start_row, start_col] = 0
         nextPlayer = 2 if self.player == 1 else 2
         return Board(nextPlayer, matrix2)
-
     def currentPlayer(self):
         return self.player
-
-    # def check_num_of_sheep(self):
-    #     sheep_cnt = 0
-    #     board = self.state
-    #     for i in range(5):
-    #         for j in range(5):
-    #             if board[i][j] == 1:
-    #                 sheep_cnt += 1
-    #     return sheep_cnt
-
     def check_total_distance_from_sheep_to_wolf(self):
+        '''
+        Return the total distance from sheep to wolf of current state.
+        '''
         wolf1_location = self.wolf1_location
         wolf2_location = self.wolf2_location
         total_distance = 0
@@ -70,8 +63,13 @@ class Board:
                     dist_current_to_wolf2 = abs(i - wolf2_location[0]) + abs(j - wolf2_location[1])
                     total_distance += (dist_current_to_wolf1 + dist_current_to_wolf2)
         return total_distance
+    def check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped(self):
+        '''
+        Implemntation: check the current state, and output the number of ways that wolf’s next move are trapped (max 4 for each wolf) and number of wolf that is already trapped(max 2).
+         *trapped: the wolf can’t move in this direction
+        Objective:  for the later heuristic evaluation function
+        '''
 
-    def check_num_of_ways_wolf_trapped(self):
         wolf_locations = [self.wolf1_location, self.wolf2_location]
         num_of_trapped = 0
         trapped_wolf_num = 0
@@ -88,30 +86,13 @@ class Board:
                 trapped_wolf_num += 1
                 num_of_trapped -= 4
         return num_of_trapped, trapped_wolf_num
-
-    # def check_num_of_to_be_killed_sheep(self):
-    #     board = self.state
-    #     num_of_to_be_killed_sheep = 0
-    #     for i in range(5):
-    #         for j in range(5):
-    #             tmp_num = 0
-    #             if board[i][j]==1:
-    #                 if i + 2 < 5:
-    #                     if board[i + 2, j] == 1 and board[i + 1, j] == 0:
-    #                         tmp_num = 1
-    #                 if i - 2 >= 0:
-    #                     if board[i - 2, j] == 1 and board[i - 1, j] == 0:
-    #                         tmp_num = 1
-    #                 if j + 2 < 5:
-    #                     if board[i, j + 2] == 1 and board[i, j + 1] == 0:
-    #                         tmp_num = 1
-    #                 if j - 2 >= 0:
-    #                     if board[i, j - 2] == 1 and board[i, j - 1] == 0:
-    #                         tmp_num = 1
-    #                 num_of_to_be_killed_sheep += tmp_num
-    #     return num_of_to_be_killed_sheep
-
     def check_num_of_sheep_and_num_of_to_be_killed(self):
+        '''
+        return  the number of sheep at this state and the number of sheep that can be killed at next step(one empty column away from wolf).
+
+        Objective:  for the later heuristic evaluation function
+
+        '''
         sheep_cnt = 0
         num_of_to_be_killed_sheep = 0
         board = self.state
@@ -134,22 +115,31 @@ class Board:
                             tmp_num += 1
                     num_of_to_be_killed_sheep += tmp_num if tmp_num <= 1 else 1
         return sheep_cnt, num_of_to_be_killed_sheep
-
-    # def check_num_of_block_eating
-
     @staticmethod
     def calculate_shortened_distance_by_current_move(org_board, cur_board):
-        return org_board.check_total_distance_from_sheep_to_wolf()-cur_board.check_total_distance_from_sheep_to_wolf()
+        '''
+        Return the difference of the total distance of all wolves and sheep between the original board and current board. If the returned value is positive, then the distance between wolf and sheep are shortened. Otherwise, the distance increased.
 
+        Objective:  for the later heuristic evaluation function
+        '''
+        return org_board.check_total_distance_from_sheep_to_wolf()-cur_board.check_total_distance_from_sheep_to_wolf()
     def calculate_sheep_scores(self, num_of_sheep_killed, shortened_distance, num_of_trapped_ways, trapped_wolf_num,num_of_to_be_killed_sheep):
+        '''
+        calculate the heuristic value of the sheep when the board is not yet end but reach the max depth.
+
+        Objective:  for the later heuristic evaluation function
+        '''
         def calculate_trapped_scores(num):
             # res = 0
             # for i in range(num + 1):
             #     res += 2 * i ** 2
             return num
-        return num_of_sheep_killed * (-8000) + shortened_distance * (-100) + calculate_trapped_scores(num_of_trapped_ways)*800 + trapped_wolf_num * 4000 - num_of_to_be_killed_sheep
-
+        return num_of_sheep_killed * (-20000) + shortened_distance * (-100) + calculate_trapped_scores(num_of_trapped_ways)*800 + trapped_wolf_num * 4000  - num_of_to_be_killed_sheep
     def calculate_wolf_scores(self,num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep):
+        '''
+        calculate the heuristic value of the wolf when the board is not yet end but reach the max depth.
+        Objective:  for the later heuristic evaluation function
+        '''
         def calculate_trapped_scores(num):
             res = 0
             for i in range(num + 1):
@@ -157,46 +147,18 @@ class Board:
             return res
         # shorten_distance_from_sheep_to_wolf = shorten_distance_from_sheep_to_wolf if shorten_distance_from_sheep_to_wolf == 0 else 1
         return num_of_sheep_killed * 500 + shorten_distance_from_sheep_to_wolf*20 - 0 * calculate_trapped_scores(num_of_trapped_ways) + 300 * num_of_to_be_killed_sheep
-
-    def evaluate(self, player, gameEnds, org_board):
-        if gameEnds:
-            if self.winner == player:
-                return 100000
-            else:
-                return -100000
-        if player == 2:
-            org_sheep_cnt, org_to_be_killed_sheep = org_board.check_num_of_sheep_and_num_of_to_be_killed()
-            cur_sheep_cnt, cur_to_be_killed_sheep = self.check_num_of_sheep_and_num_of_to_be_killed()
-            num_of_sheep_killed = org_sheep_cnt - cur_sheep_cnt
-            num_of_trapped_ways, trapped_wolf_num = self.check_num_of_ways_wolf_trapped()
-            # total_distance_from_sheep_to_wolf = self.check_total_distance_from_sheep_to_wolf()
-            shorten_distance_from_sheep_to_wolf = Board.calculate_shortened_distance_by_current_move(org_board, self)
-            num_of_to_be_killed_sheep = cur_to_be_killed_sheep
-            # print("Wolf (tmpScores: ", self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep))
-            return self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep)
-        elif player == 1:
-            org_sheep_cnt, org_to_be_killed_sheep = org_board.check_num_of_sheep_and_num_of_to_be_killed()
-            cur_sheep_cnt, cur_to_be_killed_sheep = self.check_num_of_sheep_and_num_of_to_be_killed()
-            num_of_sheep_killed = org_sheep_cnt - cur_sheep_cnt
-            org_num_of_trapped_ways, org_trapped_wolf_num = org_board.check_num_of_ways_wolf_trapped()
-            cur_num_of_trapped_ways, cur_trapped_wolf_num = self.check_num_of_ways_wolf_trapped()
-            delta_num_of_trapped_ways, delta_trapped_wolf_num = cur_num_of_trapped_ways-org_num_of_trapped_ways, cur_trapped_wolf_num-org_trapped_wolf_num
-            num_of_to_be_killed_sheep = cur_to_be_killed_sheep
-            shorten_distance_from_sheep_to_wolf = Board.calculate_shortened_distance_by_current_move(org_board, self)
-            total_scores = self.calculate_sheep_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, delta_num_of_trapped_ways, delta_trapped_wolf_num, num_of_to_be_killed_sheep)
-            # print("Sheep (tmpScores: ",total_scores)
-            return total_scores
-        print("No")
-        return 0
-
     def check_wolf_trapped_in_this_way(self, i, j):
+        '''
+        check whether wolf is trapped in this way.
+
+        Objective: used in check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped function.
+        '''
         board = self.state
         if i < 0 or i > 4 or j < 0 or j > 4:
             return True
         if board[i][j] != 0:
             return True
         return False
-
     def game_ends(self):
         board = self.state
         sheep_cnt = 0
@@ -231,7 +193,6 @@ class Board:
             self.update_winner(1)
             return True
         return False
-
     def getWolfMoves(self):
         matrix = self.state
         candidates = []
@@ -269,7 +230,6 @@ class Board:
         candidates_array = np.array(candidates)
         np.random.shuffle(candidates_array)
         return candidates_array
-
     def getSheepMoves(self):
         matrix = self.state
         candidates = []
@@ -291,10 +251,41 @@ class Board:
         candidates_array = np.array(candidates)
         np.random.shuffle(candidates_array)
         return candidates_array
+    def evaluate(self, player, gameEnds, org_board):
+        if gameEnds:
+            if self.winner == player:
+                return 100000
+            else:
+                return -100000
+        if player == 2:
+            org_sheep_cnt, org_to_be_killed_sheep = org_board.check_num_of_sheep_and_num_of_to_be_killed()
+            cur_sheep_cnt, cur_to_be_killed_sheep = self.check_num_of_sheep_and_num_of_to_be_killed()
+            num_of_sheep_killed = org_sheep_cnt - cur_sheep_cnt
+            num_of_trapped_ways, trapped_wolf_num = self.check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped()
+            # total_distance_from_sheep_to_wolf = self.check_total_distance_from_sheep_to_wolf()
+            shorten_distance_from_sheep_to_wolf = Board.calculate_shortened_distance_by_current_move(org_board, self)
+            num_of_to_be_killed_sheep = cur_to_be_killed_sheep
+            # print("Wolf (tmpScores: ", self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep))
+            return self.calculate_wolf_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, num_of_trapped_ways, org_board,num_of_to_be_killed_sheep)
+        elif player == 1:
+            org_sheep_cnt, org_to_be_killed_sheep = org_board.check_num_of_sheep_and_num_of_to_be_killed()
+            cur_sheep_cnt, cur_to_be_killed_sheep = self.check_num_of_sheep_and_num_of_to_be_killed()
+            num_of_sheep_killed = org_sheep_cnt - cur_sheep_cnt
+            org_num_of_trapped_ways, org_trapped_wolf_num = org_board.check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped()
+            cur_num_of_trapped_ways, cur_trapped_wolf_num = self.check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped()
+            delta_num_of_trapped_ways, delta_trapped_wolf_num = cur_num_of_trapped_ways-org_num_of_trapped_ways, cur_trapped_wolf_num-org_trapped_wolf_num
+            num_of_to_be_killed_sheep = cur_to_be_killed_sheep
+            shorten_distance_from_sheep_to_wolf = Board.calculate_shortened_distance_by_current_move(org_board, self)
+            total_scores = self.calculate_sheep_scores(num_of_sheep_killed, shorten_distance_from_sheep_to_wolf, delta_num_of_trapped_ways, delta_trapped_wolf_num, num_of_to_be_killed_sheep)
+            # print("Sheep (tmpScores: ",total_scores)
+            return total_scores
+        # print("No")
+        return 0
+
 
 
 def getBestMove(board, maxDepth, player):
-    def ab_negamax(board, player, maxDepth, currentDepth, alpha, beta, org_board):
+    def ab_minmax(board, player, maxDepth, currentDepth, alpha, beta, org_board):
         gameEnds = board.game_ends()
         if gameEnds or currentDepth == maxDepth:
             return None, None, None, None, board.evaluate(player, gameEnds, org_board), currentDepth, None
@@ -309,9 +300,9 @@ def getBestMove(board, maxDepth, player):
             bestScoreBoard = None
             for move in all_moves:
                 newBoard = board.makeMove(move)
-                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
-                                                                             currentDepth + 1, alpha,
-                                                                             beta, org_board)
+                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_minmax(newBoard, player, maxDepth,
+                                                                            currentDepth + 1, alpha,
+                                                                            beta, org_board)
                 currentScore = currentScore_
                 alpha = max(alpha, currentScore)
                 if currentScore > bestScore or (
@@ -331,9 +322,9 @@ def getBestMove(board, maxDepth, player):
             for move in all_moves:
                 newBoard = board.makeMove(move)
                 # if player == 2:
-                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_negamax(newBoard, player, maxDepth,
-                                                                             currentDepth + 1, alpha,
-                                                                             beta, org_board)
+                _, _, _, _, currentScore_, currentScoreDepth, _ = ab_minmax(newBoard, player, maxDepth,
+                                                                            currentDepth + 1, alpha,
+                                                                            beta, org_board)
                 # currentScore = currentScore_
                 currentScore = currentScore_
                 beta = min(beta,currentScore)
@@ -348,8 +339,8 @@ def getBestMove(board, maxDepth, player):
 
         return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard
 
-    best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard = ab_negamax(board, player, maxDepth, 0,
-                                                                                       -math.inf, math.inf, board)
+    best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth, bestScoreBoard = ab_minmax(board, player, maxDepth, 0,
+                                                                                                                      -math.inf, math.inf, board)
     # print("Best Move: ", best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth)
     return best_start_row, best_start_col, best_end_row, best_end_col, bestScore, bestScoreDepth
 
@@ -362,7 +353,7 @@ def AIAlgorithm(filename, movemade):  # a showcase for random walk
     if movemade == True:
         board = Board(2, matrix)
         [start_row, start_col, end_row, end_col, scores,depth] = getBestMove(board, 4, 2)
-        print("Wolf Scores: ", scores, "Depth: ", depth)
+        # print("Wolf Scores: ", scores, "Depth: ", depth)
         matrix2 = copy.deepcopy(matrix)
         matrix2[end_row, end_col] = 2
         matrix2[start_row, start_col] = 0
@@ -370,7 +361,7 @@ def AIAlgorithm(filename, movemade):  # a showcase for random walk
     if movemade == False:
         board = Board(1, matrix)
         [start_row, start_col, end_row, end_col, scores,depth] = getBestMove(board, 3, 1)
-        print("Sheep Scores: ", scores, "Depth: ", depth)
+        # print("Sheep Scores: ", scores, "Depth: ", depth)
         matrix2 = copy.deepcopy(matrix)
         matrix2[end_row, end_col] = 1
         matrix2[start_row, start_col] = 0

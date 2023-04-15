@@ -89,27 +89,29 @@ class Board:
                 num_of_trapped -= 4
         return num_of_trapped, trapped_wolf_num
 
-    # def check_num_of_to_be_killed_sheep(self):
-    #     board = self.state
-    #     num_of_to_be_killed_sheep = 0
-    #     for i in range(5):
-    #         for j in range(5):
-    #             tmp_num = 0
-    #             if board[i][j]==1:
-    #                 if i + 2 < 5:
-    #                     if board[i + 2, j] == 1 and board[i + 1, j] == 0:
-    #                         tmp_num = 1
-    #                 if i - 2 >= 0:
-    #                     if board[i - 2, j] == 1 and board[i - 1, j] == 0:
-    #                         tmp_num = 1
-    #                 if j + 2 < 5:
-    #                     if board[i, j + 2] == 1 and board[i, j + 1] == 0:
-    #                         tmp_num = 1
-    #                 if j - 2 >= 0:
-    #                     if board[i, j - 2] == 1 and board[i, j - 1] == 0:
-    #                         tmp_num = 1
-    #                 num_of_to_be_killed_sheep += tmp_num
-    #     return num_of_to_be_killed_sheep
+    def check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped(self):
+        '''
+        Implemntation: check the current state, and output the number of ways that wolf’s next move are trapped (max 4 for each wolf) and number of wolf that is already trapped(max 2).
+         *trapped: the wolf can’t move in this direction
+        Objective:  for the later heuristic evaluation function
+        '''
+
+        wolf_locations = [self.wolf1_location, self.wolf2_location]
+        num_of_trapped = 0
+        trapped_wolf_num = 0
+        for wolf_loc in wolf_locations:
+            wolf_loc_x = wolf_loc[0]
+            wolf_loc_y = wolf_loc[1]
+            trapped_ways = [[wolf_loc_x - 1, wolf_loc_y], [wolf_loc_x, wolf_loc_y - 1], [wolf_loc_x, wolf_loc_y + 1],
+                            [wolf_loc_x + 1, wolf_loc_y]]
+            trapped = False
+            for way in trapped_ways:
+                if self.check_wolf_trapped_in_this_way(way[0], way[1]):
+                    num_of_trapped += 1
+            if num_of_trapped == 4:
+                trapped_wolf_num += 1
+                num_of_trapped -= 4
+        return num_of_trapped, trapped_wolf_num
 
     def check_num_of_sheep_and_num_of_to_be_killed(self):
         sheep_cnt = 0
@@ -178,7 +180,7 @@ class Board:
             org_sheep_cnt, org_to_be_killed_sheep = org_board.check_num_of_sheep_and_num_of_to_be_killed()
             cur_sheep_cnt, cur_to_be_killed_sheep = self.check_num_of_sheep_and_num_of_to_be_killed()
             num_of_sheep_killed = org_sheep_cnt - cur_sheep_cnt
-            org_num_of_trapped_ways, org_trapped_wolf_num = org_board.check_num_of_ways_wolf_trapped()
+            org_num_of_trapped_ways, org_trapped_wolf_num = org_board.check_num_of_ways_wolf_trapped_and_num_of_wolf_trapped()
             cur_num_of_trapped_ways, cur_trapped_wolf_num = self.check_num_of_ways_wolf_trapped()
             delta_num_of_trapped_ways, delta_trapped_wolf_num = cur_num_of_trapped_ways-org_num_of_trapped_ways, cur_trapped_wolf_num-org_trapped_wolf_num
             num_of_to_be_killed_sheep = cur_to_be_killed_sheep

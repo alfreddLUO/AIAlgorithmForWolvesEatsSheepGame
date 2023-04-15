@@ -23,7 +23,7 @@ class WES(object):
         self.initial_board = [
                     ['1', '1', '1', '1', '1'],
                     ['1', '1', '1', '1', '1'],
-                    ['0', '0', '0', '0', '0'],
+                    ['0', '1', '0', '1', '0'],
                     ['0', '0', '0', '0', '0'],
                     ['0', '2', '0', '2', '0']] # the index of each chess is their real position in pygame
         '''
@@ -208,6 +208,10 @@ class WES(object):
 
         move = WES_Engine.Move(start, end, gs.board)
         # print(move.getChessNotation())
+        # print(gs.getValidMoves(move, moveMade))
+        # print(gs.board[move.startRow][move.startCol] == '2')
+
+        # print(move)
         if gs.getValidMoves(move, moveMade):
             gs.makeMove(move)
             moveMade = not moveMade

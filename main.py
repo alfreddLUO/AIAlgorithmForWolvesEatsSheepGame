@@ -1,4 +1,4 @@
-from WES_Main import WES
+from WES_Main_org import WES
 from WES_Engine import WES_State, Move
 import time
 
