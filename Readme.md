@@ -92,7 +92,7 @@ straight line (**Only front, back, left, and right are legal directions, others 
 
 **Besieging:** In the same time, sheep can besiege wolves, which means wolves cannot find a legal step in their turn. For example, the wolf on the right top (Figure 6) is trapped by sheep (In this situation, the trapped wolf cannot move because there is no empty square for this wolf to walk.).
 
-**0.3 How to win?**
+## 0.3 How to win?
 
 **For Wolves:** All sheep are eaten or the resting sheep cannot trap them in finite steps (less or equal to **two**, figure 7 show the winning of wolves).
 
